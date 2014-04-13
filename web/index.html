@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <title>Wemo Control</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="jquery-2.1.0.min.js"></script>
+
+    <script>
+        function get (){
+            $.getJSON("webservice.php",
+                {"function": "get"},
+                function(json, textStatus, jqXHR){
+                    $("#content").empty();
+
+                    for (i in json){
+                        var wemo = json[i];
+                        if (wemo.state == 1){
+                            switchToState = 0;
+                            switchToStateString = "off";
+                            stateString = "on";
+                        } else {
+                            switchToState = 1;
+                            switchToStateString = "on";
+                            stateString = "off";
+                        }
+
+                        var out = wemo.ip + ": " + wemo.friendlyName + " is "
+                            + "<a href='#' onclick='set(\"" + wemo.ip + "\", " + switchToState + ")'>" + stateString;
+
+                        if (wemo.pendingState == -1){ 
+                            out += " (resetting)";
+                        } else if (wemo.pendingState != -65000){ 
+                            out += " -> " + switchToStateString;
+                        }
+                        out += "</a>";
+
+                        $("#content").append("<li>" + out + "</li>");
+                    }
+                }
+            );
+
+            setTimeout (get, 2000);
+        }
+
+        function set (
+            ip,
+            state
+        ){
+            $.getJSON("webservice.php",
+                {"function": "set", "ip": ip, "state": state},
+                function(json, textStatus, jqXHR){
+                    if (json != "ok")
+                        console.log (json);
+                }
+            );
+        }
+
+        function reset (){
+            $.getJSON("webservice.php",
+                {"function": "reset"},
+                function(json, textStatus, jqXHR){
+                    if (json != "ok")
+                        console.log (json);
+                }
+            );
+        }
+    </script>
+</head>
+
+<body onload="get()">
+
+<div id="content">
+
+</div>
+
+<div style="padding-top: 1em;">
+    <a href='#' onclick='reset()'>reset</a>
+</div>
+
+</body>
+
+</html>

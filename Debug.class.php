@@ -10,6 +10,11 @@ class Debug {
             $this->fh = fopen (self::ERROR_LOG, "a");
     }
 
+    private function closeFileHandle (){
+        if (!is_resource($this->fh))
+            $this->fh = fclose (self::ERROR_LOG);
+    }
+
     /**
      * Constructor. Open file handle to write data to
      *
@@ -56,6 +61,7 @@ class Debug {
 
         $this->openFileHandle();
         fwrite($this->fh, $out);
+        $this->closeFileHandle();
     }
 }
 
