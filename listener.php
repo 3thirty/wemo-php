@@ -19,15 +19,20 @@ require_once("WemoMeta.class.php");
 require_once("Debug.class.php");
 
 $debug = new Debug();
+$debug->log("lister.php");
 
 function resetCache (
     $ips
 ){
+    $debug->log("resetCache()");
+
     echo "Priming cache\n";
     foreach ($ips as $ip){
         echo $ip . "... ";
 
         $meta = WemoMeta::init($ip, true, $debug);
+        var_dump ($meta);
+
         $wemo = new Wemo($ip, true, $meta);
 
         echo "friendlyname, ";
@@ -43,7 +48,8 @@ function resetCache (
 }
 
 // prime the cache on startup - this can take a little while
-resetCache($ips);
+if (filesize("/tmp/wemo-cache") == 0) // TODO: don't hardcode this
+    resetCache($ips);
 
 // hotloop. Constantly read the cache for any pendingStates
 while (true){
@@ -51,7 +57,7 @@ while (true){
         if ($ip == "")
             next;
 
-        $meta = WemoMeta::init($ip, true, $debug);
+        $meta = WemoMeta::init($ip, false, $debug);
         $pendingState = $meta->get("pendingState");
 
         if ((int) $pendingState == -1){
@@ -63,6 +69,7 @@ while (true){
             if ($wemo->setBinaryState($pendingState)){
                 $meta->reset("pendingState");
                 $meta->set("state", $pendingState);
+                $meta->writeToCache();
                 $debug->log("successfully switched state for "
                     . $meta->get("friendlyName") . " (" . $ip . ") to "
                     . $meta->get("pendingState"));

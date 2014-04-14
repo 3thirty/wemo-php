@@ -11,8 +11,7 @@ require_once("config.inc.php");
 require_once("WemoMeta.class.php");
 
 foreach (WemoMeta::getAllIps() as $ip){
-    $meta = WemoMeta::init($ip);
-    var_dump ($meta);
+    var_dump(WemoMeta::init($ip, false));
 }
 
 ?>

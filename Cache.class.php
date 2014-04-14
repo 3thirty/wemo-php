@@ -22,10 +22,6 @@ class Cache {
     ){
         return false;
     }
-
-    public static function getInstance (){
-        return self;
-    }
 }
 
 /**
@@ -36,10 +32,6 @@ class Cache {
 class FlatFileCache {
     const CACHE_FILE = "/tmp/wemo-cache";
     const DELIMITER = "\t";
-
-    public static function getInstance (){
-        return self;
-    }
 
     public static function createCacheFile (){
         if (!file_exists(self::CACHE_FILE))
@@ -91,33 +83,82 @@ class FlatFileCache {
         return $ret;
     }
 
+    /**
+     * Set the value for the provided key
+     * @param   key     The key to set (must be unique)
+     * @param   value   The value to set for key
+     *
+     * @return  true if the write is successful, false otherwise
+     */
     public static function set(
         $key,
         $value
     ){
-        //echo "FlatFileCache::set($key, $value)\n";
-
-        self::createCacheFile();
+        $debug = new Debug();
+        $debug->log("FlatFileCache::set(" . $key . ", " . $value . ")");
 
         $out = $key . self::DELIMITER . $value . "\n";
 
+        $readKeys[] = $key;
         foreach (file(self::CACHE_FILE) as $line){
             $pieces = explode(self::DELIMITER, $line);
             $cacheKey = $pieces[0];
             $cacheValue = $pieces[1];
 
-            if ($cacheKey == $key)
+            if (in_array($cacheKey, $readKeys)){
                 continue;
-            else
+            } else {
                 $out .= $line;
+                $readKeys[] = $cacheKey;
+            }
         }
 
-        $res = file_put_contents(self::CACHE_FILE, $out);
+        $debug->log(array("writing to cache:", $out));
+        $fh = fopen(self::CACHE_FILE, "w");
+        flock($fh, LOCK_EX);
+        $res = fwrite($fh, $out);
+        flock($fh, LOCK_UN);
 
         if ($res > 0)
             return true;
         else
             return false;
+    }
+}
+
+class MemcachedCache {
+    const SERVER = "localhost";
+    const HOST = 11211;
+
+    private static function connect(){
+        $memcache = new Memcache;
+
+        if ($memcache->connect(self::SERVER, self::HOST))
+            return $memcache;
+        else
+            return false;
+    }
+
+    public static function get(
+        $key
+    ){
+        if ($memcache = self::connect())
+            return $memcache->get($key);
+    }
+
+    public static function getAll(){
+        foreach ($ips as $ip)   // use config IPs
+            $ret[$ip] = self::get($ip);
+
+        return $ret;
+    }
+
+    public static function set(
+        $key,
+        $value
+    ){
+        if ($memcache = self::connect())
+            return $memcache->set($key, $value);
     }
 }
 

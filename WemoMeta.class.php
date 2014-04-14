@@ -54,8 +54,6 @@ class WemoMeta {
             $meta = new WemoMeta ($ip);
             foreach ($cachedObject as $key => $val)
                 $meta->$key = $val;
-
-            $meta->writeToCache = $writeToCache;
         } else {
             $meta = new WemoMeta ($ip);
         }
@@ -64,6 +62,7 @@ class WemoMeta {
             $debug = new Debug();
         
         $meta->debug = $debug;
+        $meta->writeToCache = $writeToCache;
 
         return $meta;
     }
@@ -80,7 +79,6 @@ class WemoMeta {
             $this->debug->log(array("got from meta: " . $key . " = ", $this->$key));
             $ret = $this->$key;
         } else {
-            $this->debug->log("no value in meta for " . $key);
             $ret = self::KEY_NOT_SET;
         }
 
@@ -117,7 +115,7 @@ class WemoMeta {
      * When this object disappears, write the current state to the cache
      */
     public function writeToCache (){
-        $this->debug->log("writing to cache: " . $this->serialize());
+        echo("writing to cache: " . $this->serialize());
         FlatFileCache::set($this->ip, $this->serialize());
     }
 
@@ -126,7 +124,7 @@ class WemoMeta {
      */
     public function __destruct (){
         if ($this->writeToCache == true){
-            $this->debug->log("WemoMeta::__destruct()");
+            echo("WemoMeta::__destruct()");
             $this->writeToCache();
         }
     }
@@ -137,6 +135,7 @@ class WemoMeta {
     public function serialize (){
         $serializeObject = $this;
         unset($serializeObject->debug);
+        unset($serializeObject->writeToCache);
         return serialize($serializeObject);
     }
 }

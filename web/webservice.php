@@ -10,7 +10,7 @@ switch ($_GET["function"]){
     case "get":
         $i = 0;
         foreach ($ips as $ip){
-            $meta = WemoMeta::init($ip, false, new Debug);
+            $meta = WemoMeta::init($ip, false, new Debug(false));
 
             $ret[$i]["ip"] = $meta->get("ip");
             $ret[$i]["friendlyName"] = $meta->get("friendlyName");

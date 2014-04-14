@@ -37,7 +37,7 @@ class Wemo {
      * @return the active port numver
      */
     private function findPort (){
-        $this->debug->log("findPort()");
+        $this->debug->log("findPort() for " . $this->ip);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_TIMEOUT, 3);
@@ -54,12 +54,9 @@ class Wemo {
                 sleep(self::RETRY_SLEEP);
             }
 
-            $this->debug->log("trying " . $this->ip . ":" . $port);
             curl_setopt($ch, CURLOPT_URL, "http://" . $this->ip . ":" . $port);
 
             $res = curl_exec($ch);
-
-            $this->debug->log($res);
 
             if ($res){
                 $this->debug->log("found port " . $port);
