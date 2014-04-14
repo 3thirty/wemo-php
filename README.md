@@ -13,19 +13,42 @@ Some differences/limitations:
 Setup
 -----
 * Clone everything into a web-accessible directory on your "server" machine (only tested on OSX)
+<<<<<<< HEAD
         git clone https://github.com/3thirty/wemo-php.git ~/Sites/wemo-php
+=======
+
+    git clone https://github.com/3thirty/wemo-php.git ~/Sites/wemo-php
+>>>>>>> More formatting
 
 * Add your wemo IP addresses to config.inc.php (try miranda to discover these over UPNP if you don't know them, but I'd recommend setting to static IPs on your router)
+
 * Make sure the cache file is world writable
+<<<<<<< HEAD
         touch /tmp/wemo-cache
         chmod 777 /tmp/wemo-cache
 * Start listener shell script in the background. This will monitor the php process and restart it as required
         ./listener.sh &
+=======
+
+    touch /tmp/wemo-cache
+    chmod 777 /tmp/wemo-cache
+
+* Start listener shell script in the background. This will monitor the php process and restart it as required
+
+    ./listener.sh &
+
+>>>>>>> More formatting
 * Make sure apache is turned on and PHP is enabled (it looks like it's off by default in OSX 10.9)
     - TODO. I'm sure this is documented elsewehere on the web
+
 * Load up the web interface:
+<<<<<<< HEAD
         http://SEVER_IP/~you/wemo-php/web/
 
+=======
+
+    http://SEVER_IP/~you/wemo-php/web/
+>>>>>>> More formatting
 
 Useful Links & Resources
 ------------------------
