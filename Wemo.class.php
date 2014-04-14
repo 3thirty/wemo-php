@@ -209,6 +209,9 @@ class Wemo {
         $debug = false,
         WemoMeta &$meta
     ){
+        // TODO: for testing only; override the debug option
+        $debug = true;
+
         $this->debug = new Debug($debug);
         $this->meta = $meta;
 

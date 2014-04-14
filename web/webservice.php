@@ -10,7 +10,7 @@ switch ($_GET["function"]){
     case "get":
         $i = 0;
         foreach ($ips as $ip){
-            $meta = WemoMeta::init($ip);
+            $meta = WemoMeta::init($ip, false, new Debug);
 
             $ret[$i]["ip"] = $meta->get("ip");
             $ret[$i]["friendlyName"] = $meta->get("friendlyName");
@@ -23,16 +23,14 @@ switch ($_GET["function"]){
         echo json_encode($ret);
         break;
     case "set":
-        $meta = WemoMeta::init($_GET["ip"]);
+        $meta = WemoMeta::init($_GET["ip"], true, new Debug);
         $meta->set("pendingState", (int) $_GET["state"]);
-        $meta->writeToCache();
         echo json_encode("ok");
         break;
     case "reset":
         foreach (WemoMeta::getAllIps() as $ip){
-            $meta = WemoMeta::init($ip);
+            $meta = WemoMeta::init($ip, true, new Debug);
             $meta->set("pendingState", -1);
-            $meta->writeToCache();
         }
         echo json_encode("ok");
         break;

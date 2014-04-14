@@ -2,7 +2,8 @@
 <?
 
 /**
- * Daemon that listens for any changes to pendingState in the meta cache
+ * Daemon (sort of) that listens for any changes to pendingState in the meta
+ * cache
  *
  * When a change is detected the devices is switched into the pendingState and
  * the pendingState value is unset
@@ -26,8 +27,8 @@ function resetCache (
     foreach ($ips as $ip){
         echo $ip . "... ";
 
-        $meta = WemoMeta::init($ip);
-        $wemo = new Wemo ($ip, true, $meta);
+        $meta = WemoMeta::init($ip, true, $debug);
+        $wemo = new Wemo($ip, true, $meta);
 
         echo "friendlyname, ";
         $wemo->getFriendlyName();
@@ -38,11 +39,10 @@ function resetCache (
         echo "[DONE]\n";
 
         $meta->reset("pendingState");
-        $meta->writeToCache();
     }
 }
 
-// prime the cache - this can take a little while
+// prime the cache on startup - this can take a little while
 resetCache($ips);
 
 // hotloop. Constantly read the cache for any pendingStates
@@ -51,20 +51,18 @@ while (true){
         if ($ip == "")
             next;
 
-        $meta = WemoMeta::init($ip, true);
+        $meta = WemoMeta::init($ip, true, $debug);
         $pendingState = $meta->get("pendingState");
 
-        if ($pendingState == -1){
+        if ((int) $pendingState == -1){
+            $debug->log("explicitly resetting cache");
             resetCache($ips);
-        }
-
-        if ($pendingState != WemoMeta::KEY_NOT_SET){
+        } elseif ($pendingState != WemoMeta::KEY_NOT_SET){
             $debug->log("setting " . $meta->get("friendlyName") . " (" . $ip . ") to " . $meta->get("pendingState") . "... ");
             $wemo = new Wemo($ip, true, $meta);
             if ($wemo->setBinaryState($pendingState)){
                 $meta->reset("pendingState");
                 $meta->set("state", $pendingState);
-                $meta->writeToCache();
                 $debug->log("successfully switched state for "
                     . $meta->get("friendlyName") . " (" . $ip . ") to "
                     . $meta->get("pendingState"));

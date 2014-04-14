@@ -31,7 +31,7 @@ if ($ip !== null){
     $ret = $device->{$function}();
 } else {
     foreach ($ips as $ip){
-        $device = new Wemo($ip, $debug, WemoMeta::init($ip));
+        $device = new Wemo($ip, $debug, WemoMeta::init($ip, true));
         $ret = $device->{$function}();
         echo $ip . "\t" . $ret . "\n";
     }

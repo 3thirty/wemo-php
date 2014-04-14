@@ -28,8 +28,6 @@ class Debug {
             return;
         }
         $this->log("Debug::__construct()");
-
-        $this->openFileHandle();
     }
 
     public function __destruct (){
@@ -50,14 +48,23 @@ class Debug {
         if ($this->on === false)
             return;
 
-        if (is_string($data)){
-            $out = $data . "\n";
-        } else {
-            ob_start();
-            var_dump($data);
-            $out = ob_get_contents();
-            ob_end_clean();
+        if (!is_array($data))
+            $data = array($data);
+
+        $out = "";
+        foreach ($data as $d){
+            if (is_string($d)){
+                $out .= $d;
+            } else {
+                ob_start();
+                var_dump($d);
+                $out .= ob_get_contents();
+                ob_end_clean();
+            }
         }
+
+        $out = rtrim ($out);
+        $out = date("Y-m-d H:i:s") . "\t" . $out . "\n";
 
         $this->openFileHandle();
         fwrite($this->fh, $out);

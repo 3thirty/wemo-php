@@ -1,6 +1,7 @@
 <?
 
 require_once("Cache.class.php");
+require_once("Debug.class.php");
 
 /**
  * Class to cache wemo metadata in a flat file
@@ -13,7 +14,9 @@ class WemoMeta {
     private $friendlyName;
     private $state;
     private $pendingState;  // this is the requested state. This will be NULL once the state has been changed
-    private $skipCache = false;     // do not write to cache
+    private $writeToCache = false;
+
+    private $debug;
 
     const KEY_NOT_SET = -65000;
 
@@ -21,11 +24,9 @@ class WemoMeta {
      * See init()
      */
     private function __construct (
-        $ip,
-        $skipCache
+        $ip
     ){
         $this->ip = $ip;
-        $this->skipCache = $skipCache;
     }
 
     public static function getAllIps (){
@@ -34,29 +35,35 @@ class WemoMeta {
 
     /**
      * Initialize. Use this instead of the constructor
-     * @param   ip          The IP address of the wemo device that we're storing
-     *                      data about
-     * @param   skipCache   If true, do not WRITE to the cache
+     * @param   ip              The IP address of the wemo device that we're storing
+     *                          data about
+     * @param   writeToCache    If true, DO write the contents to the cache on destroy
      *
      * @return  A cached metadata object for this ip, or a new (empty) metadata
      *          object for this ip
      */
     public static function init (
         $ip,
-        $skipCache = false
+        $writeToCache = false,
+        Debug &$debug = null
     ){
         $cache = FlatFileCache::get($ip);
         $cachedObject = unserialize($cache);
 
         if ($cachedObject !== FALSE){
-            $meta = new WemoMeta ($ip, $skipCache);
+            $meta = new WemoMeta ($ip);
             foreach ($cachedObject as $key => $val)
                 $meta->$key = $val;
 
-            $meta->skipCache = $skipCache;
+            $meta->writeToCache = $writeToCache;
         } else {
-            $meta = new WemoMeta ($ip, $skipCache);
+            $meta = new WemoMeta ($ip);
         }
+
+        if ($debug == null)
+            $debug = new Debug();
+        
+        $meta->debug = $debug;
 
         return $meta;
     }
@@ -70,8 +77,10 @@ class WemoMeta {
         $key
     ){
         if (isset($this->$key)){
+            $this->debug->log(array("got from meta: " . $key . " = ", $this->$key));
             $ret = $this->$key;
         } else {
+            $this->debug->log("no value in meta for " . $key);
             $ret = self::KEY_NOT_SET;
         }
 
@@ -89,6 +98,7 @@ class WemoMeta {
         $value
     ){
         if (property_exists($this, $key)){
+            $this->debug->log("writing to meta: " . $key . " = " . $value);
             $this->$key = $value;
             return true;
         } else {
@@ -99,6 +109,7 @@ class WemoMeta {
     public function reset (
         $key
     ){
+        $this->debug->log("WemoMeta::__reset()");
         unset ($this->$key);
     }
 
@@ -106,6 +117,7 @@ class WemoMeta {
      * When this object disappears, write the current state to the cache
      */
     public function writeToCache (){
+        $this->debug->log("writing to cache: " . $this->serialize());
         FlatFileCache::set($this->ip, $this->serialize());
     }
 
@@ -113,7 +125,8 @@ class WemoMeta {
      * When this object disappears, write the current state to the cache
      */
     public function __destruct (){
-        if ($this->skipCache === false){
+        if ($this->writeToCache == true){
+            $this->debug->log("WemoMeta::__destruct()");
             $this->writeToCache();
         }
     }
@@ -123,6 +136,7 @@ class WemoMeta {
      */
     public function serialize (){
         $serializeObject = $this;
+        unset($serializeObject->debug);
         return serialize($serializeObject);
     }
 }

@@ -12,9 +12,7 @@ class Cache {
         return false;
     }
 
-    public static function getAll(
-        $key
-    ){
+    public static function getAll(){
         return false;
     }
 
@@ -77,9 +75,7 @@ class FlatFileCache {
      * Get a all records from the cache
      * @return  An array with all records in the cache in format array[KEY] = VALUE
      */
-    public static function getAll(
-        $key
-    ){
+    public static function getAll(){
         //echo "FlatFileCache::getAll()\n";
         self::createCacheFile();
 
