@@ -7,11 +7,23 @@
     <script src="jquery-2.1.0.min.js"></script>
 
     <script>
+        var DEFAULT_INTERVAL = 10000;   // standard wait time between status
+                                        // checks (i.e. webservice get calls)
+        var FAST_INTERVAL = 500;        // fast interval - used when the status
+                                        // is being changed or rest
+
+        /**
+         * Get the current state for all devices from the webservice
+         *
+         * @return  void. This replaces the contents of the div array with
+         *          appropriate elements
+         */
         function get (){
             $.getJSON("webservice.php",
                 {"function": "get"},
                 function(json, textStatus, jqXHR){
                     $("#content").empty();
+                    var interval = DEFAULT_INTERVAL;
 
                     for (i in json){
                         var wemo = json[i];
@@ -19,30 +31,49 @@
                             switchToState = 0;
                             switchToStateString = "off";
                             stateString = "on";
+                            cssClass = "on";
                         } else {
                             switchToState = 1;
                             switchToStateString = "on";
                             stateString = "off";
+                            cssClass = "off";
                         }
 
-                        var out = wemo.ip + ": " + wemo.friendlyName + " is "
-                            + "<a href='#' onclick='set(\"" + wemo.ip + "\", " + switchToState + ")'>" + stateString;
-
+                        var out;
+                        if (wemo.friendlyName == -65000)
+                            out = wemo.ip;
+                        else
+                            out = wemo.friendlyName;
+                            
+                        out += " is <b>";
                         if (wemo.pendingState == -1){ 
                             out += " (resetting)";
+                            cssClass = "pending";
+                            interval = FAST_INTERVAL;
                         } else if (wemo.pendingState != -65000){ 
-                            out += " -> " + switchToStateString;
+                            out += "turning " + switchToStateString
+                            cssClass = "changing";
+                            interval = FAST_INTERVAL;
+                        } else {
+                            out += stateString;
                         }
-                        out += "</a>";
+                        out += "</b>";
 
-                        $("#content").append("<li>" + out + "</li>");
+                        $("#content").append("<div onclick='set(\"" + wemo.ip + "\", " + switchToState + ")' class='" + cssClass + "'>" + out + "</div>");
                     }
+
+                    setTimeout (get, interval);
                 }
             );
-
-            setTimeout (get, 2000);
         }
 
+        /**
+         * Send a command to the webservice to change the state of a device
+         * @param   ip      The IP address of the device to set the state of
+         * @param   state   The state to set - 1 (on) or 0 (off)
+         *
+         * @return  void
+         */
         function set (
             ip,
             state
@@ -52,10 +83,17 @@
                 function(json, textStatus, jqXHR){
                     if (json != "ok")
                         console.log (json);
+                    get();
                 }
             );
         }
 
+        /**
+         * Send reset command to the webservice. This asks to clear the cache
+         * and query devices for the current values get new
+         *
+         * @return  void
+         */
         function reset (){
             $.getJSON("webservice.php",
                 {"function": "reset"},
@@ -64,6 +102,13 @@
                         console.log (json);
                 }
             );
+        }
+
+        /**
+         * Check for any status changes every 2 seconds
+         */
+        function start(){
+            setInterval (get, 2000);
         }
     </script>
 </head>
@@ -74,8 +119,8 @@
 
 </div>
 
-<div style="padding-top: 1em;">
-    <a href='#' onclick='reset()'>reset</a>
+<div class="reset" onclick='reset()'>
+    Reset
 </div>
 
 </body>

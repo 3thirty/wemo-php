@@ -19,10 +19,11 @@ require_once("WemoMeta.class.php");
 require_once("Debug.class.php");
 
 $debug = new Debug();
-$debug->log("lister.php");
+$debug->log("listener.php");
 
 function resetCache (
-    $ips
+    $ips,
+    &$debug
 ){
     $debug->log("resetCache()");
 
@@ -49,7 +50,7 @@ function resetCache (
 
 // prime the cache on startup - this can take a little while
 if (filesize("/tmp/wemo-cache") == 0) // TODO: don't hardcode this
-    resetCache($ips);
+    resetCache($ips, $debug);
 
 // hotloop. Constantly read the cache for any pendingStates
 while (true){
@@ -62,7 +63,7 @@ while (true){
 
         if ((int) $pendingState == -1){
             $debug->log("explicitly resetting cache");
-            resetCache($ips);
+            resetCache($ips, $debug);
         } elseif ($pendingState != WemoMeta::KEY_NOT_SET){
             $debug->log("setting " . $meta->get("friendlyName") . " (" . $ip . ") to " . $meta->get("pendingState") . "... ");
             $wemo = new Wemo($ip, true, $meta);
@@ -80,6 +81,8 @@ while (true){
             }
         }
     }
+
+    sleep(1);
 }
 
 ?>

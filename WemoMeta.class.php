@@ -115,7 +115,7 @@ class WemoMeta {
      * When this object disappears, write the current state to the cache
      */
     public function writeToCache (){
-        echo("writing to cache: " . $this->serialize());
+        $this->debug->log("writing to cache: " . $this->serialize());
         FlatFileCache::set($this->ip, $this->serialize());
     }
 
@@ -124,7 +124,7 @@ class WemoMeta {
      */
     public function __destruct (){
         if ($this->writeToCache == true){
-            echo("WemoMeta::__destruct()");
+            $this->debug->log("WemoMeta::__destruct()");
             $this->writeToCache();
         }
     }

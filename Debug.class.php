@@ -3,16 +3,16 @@
 class Debug {
     private $fh;    // file handle to write errors to
     private $on = true;
-    const ERROR_LOG = "/tmp/log";
+    private $logFile;
 
     private function openFileHandle (){
         if (!is_resource($this->fh))
-            $this->fh = fopen (self::ERROR_LOG, "a");
+            $this->fh = fopen ($this->logFile, "a");
     }
 
     private function closeFileHandle (){
         if (!is_resource($this->fh))
-            $this->fh = fclose (self::ERROR_LOG);
+            $this->fh = fclose ($this->logFile);
     }
 
     /**
@@ -21,12 +21,14 @@ class Debug {
      * @param   on  If set to true, enable debugging. If false, disable debugging
      */
     public function __construct (
-        $on = true
+        $on = true,
+        $logFile = "/tmp/log"
     ){
         if ($on !== true){
             $this->on = false;
             return;
         }
+        $this->logFile = $logFile;
         $this->log("Debug::__construct()");
     }
 

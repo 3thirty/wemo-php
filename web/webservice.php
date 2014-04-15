@@ -23,13 +23,13 @@ switch ($_GET["function"]){
         echo json_encode($ret);
         break;
     case "set":
-        $meta = WemoMeta::init($_GET["ip"], true, new Debug);
+        $meta = WemoMeta::init($_GET["ip"], true, new Debug(false));
         $meta->set("pendingState", (int) $_GET["state"]);
         echo json_encode("ok");
         break;
     case "reset":
         foreach (WemoMeta::getAllIps() as $ip){
-            $meta = WemoMeta::init($ip, true, new Debug);
+            $meta = WemoMeta::init($ip, true, new Debug(false));
             $meta->set("pendingState", -1);
         }
         echo json_encode("ok");

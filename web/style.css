@@ -2,3 +2,35 @@
     font-family: Arial, Verdana, Sans-serif;
     font-size: 26pt;
 }
+
+.on, .off, .pending, .reset, .changing {
+    padding: 1em;
+    margin: 1em;
+    cursor: pointer;
+}
+
+.on {
+    background-color: green;
+}
+
+.off {
+    background-color: red;
+}
+
+.changing {
+    background-color: #E49100;
+}
+
+.pending {
+    background-color: #c0c0c0;
+}
+
+.reset {
+    position: absolute;
+    bottom: 0px;
+    right: 1em;
+    background-color: gray;
+    width: 40%;
+    text-align: center;
+    vertical-align: center;
+}
