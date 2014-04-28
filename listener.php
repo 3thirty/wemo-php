@@ -31,9 +31,7 @@ function resetCache (
     foreach ($ips as $ip){
         echo $ip . "... ";
 
-        $meta = WemoMeta::init($ip, true, $debug);
-        var_dump ($meta);
-
+        $meta = new WemoMeta ($ip, true, $debug);
         $wemo = new Wemo($ip, true, $meta);
 
         echo "friendlyname, ";
@@ -58,7 +56,7 @@ while (true){
         if ($ip == "")
             next;
 
-        $meta = WemoMeta::init($ip, false, $debug);
+        $meta = new WemoMeta ($ip, false, $debug);
         $pendingState = $meta->get("pendingState");
 
         if ((int) $pendingState == -1){
@@ -70,7 +68,6 @@ while (true){
             if ($wemo->setBinaryState($pendingState)){
                 $meta->reset("pendingState");
                 $meta->set("state", $pendingState);
-                $meta->writeToCache();
                 $debug->log("successfully switched state for "
                     . $meta->get("friendlyName") . " (" . $ip . ") to "
                     . $meta->get("pendingState"));
@@ -79,10 +76,14 @@ while (true){
                     . $meta->get("friendlyName") . " (" . $ip . ") to "
                     . $meta->get("pendingState"));
             }
+
+            $meta->writeToCache();
         }
     }
 
     sleep(1);
 }
+
+$debug->log("exiting listener.php");
 
 ?>

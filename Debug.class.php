@@ -74,4 +74,18 @@ class Debug {
     }
 }
 
+/**
+ * Standalone function to provide stack traces. Not really used much, but
+ * useful for diagnosing specific issues
+ */
+function stacktrace (
+	$errno = null,
+	$errstr = null,
+	$errfile = null,
+	$errline = null
+){
+    echo "stacktrace:\n";
+	var_dump(debug_backtrace());
+}
+
 ?>

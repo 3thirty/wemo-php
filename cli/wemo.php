@@ -30,12 +30,12 @@ while ($arg = array_shift($args)){
 }
 
 if ($ip !== null){
-    $device = new Wemo($ip, $debug, WemoMeta::init($ip, true, new Debug($debug, "php://stderr")));
+    $device = new Wemo($ip, $debug, new WemoMeta ($ip, true, new Debug($debug, "php://stderr")));
     echo $device->{$function}();
     echo "\n";
 } else {
     foreach ($ips as $ip){
-        $device = new Wemo($ip, $debug, WemoMeta::init($ip, true, new Debug ($debug, "php://stderr")));
+        $device = new Wemo($ip, $debug, new WemoMeta ($ip, true, new Debug ($debug, "php://stderr")));
         $ret = $device->{$function}();
         echo $ip . "\t" . $ret . "\n";
     }
