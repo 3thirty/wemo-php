@@ -206,9 +206,6 @@ class Wemo {
         $debug = false,
         WemoMeta &$meta
     ){
-        // TODO: for testing only; override the debug option
-        $debug = true;
-
         $this->debug = new Debug($debug);
         $this->meta = $meta;
 
@@ -262,12 +259,9 @@ class Wemo {
         $this->debug->log("getBinaryState()");
 
         $state = $this->getGeneric("GetBinaryState");
-
-        $this->debug->log($state);
-
         $this->meta->set("state", $state);
-        // TODO: this should be handled by the listener
-        $this->meta->set("pendingState", null);
+
+        $this->debug->log(array("switched state to:", $state));
 
         return $state;
     }
