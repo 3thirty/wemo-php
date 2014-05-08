@@ -84,6 +84,14 @@ class FlatFileCache {
     }
 
     /**
+     * Get all the keys from the cache
+     * @return  An array with all keys from the cache
+     */
+    public static function getAllKeys(){
+        return array_keys(self::getAll());
+    }
+
+    /**
      * Set the value for the provided key
      * @param   key     The key to set (must be unique)
      * @param   value   The value to set for key

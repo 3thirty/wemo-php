@@ -1,17 +1,17 @@
 <?
 
 set_include_path(__DIR__ . "/../");
-require_once("config.inc.php");
 require_once("WemoMeta.class.php");
 require_once("Wemo.class.php");
 require_once("Debug.class.php");
+require_once("Checkin.class.php");
 
 $debug = new Debug(false);
 
 switch ($_GET["function"]){
     case "get":
         $i = 0;
-        foreach ($ips as $ip){
+        foreach (WemoMeta::getAllIps() as $ip){
             $meta = new WemoMeta ($ip, false, $debug);
 
             $ret[$i]["ip"] = $meta->get("ip");
@@ -35,6 +35,14 @@ switch ($_GET["function"]){
             $meta->set("pendingState", -1);
         }
         echo json_encode("ok");
+        break;
+    case "checkin":
+        if ($_GET["user"] != "")
+            Checkin::in($_GET["user"]);
+        break;
+    case "checkin":
+        if ($_GET["user"] != "")
+            Checkin::out($_GET["user"]);
         break;
     default:
         echo json_encode("error!");

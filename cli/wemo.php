@@ -7,7 +7,6 @@
  * Usage: ./wemo.php [-v] [on|off|getstate] [IP]
  */
 set_include_path(__DIR__ . "/../");
-require_once("config.inc.php");
 require_once("WemoMeta.class.php");
 require_once("Wemo.class.php");
 
@@ -34,7 +33,7 @@ if ($ip !== null){
     echo $device->{$function}();
     echo "\n";
 } else {
-    foreach ($ips as $ip){
+    foreach (WemoMeta::getAllIps() as $ip){
         $device = new Wemo($ip, $debug, new WemoMeta ($ip, true, new Debug ($debug, "php://stderr")));
         $ret = $device->{$function}();
         echo $ip . "\t" . $ret . "\n";

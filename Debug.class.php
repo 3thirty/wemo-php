@@ -24,6 +24,8 @@ class Debug {
         $on = true,
         $logFile = "/tmp/log"
     ){
+        date_default_timezone_set("America/Los_Angeles");
+
         if ($on !== true){
             $this->on = false;
             return;

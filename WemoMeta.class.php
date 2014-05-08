@@ -55,7 +55,7 @@ class WemoMeta {
     }
 
     public static function getAllIps (){
-        return array_keys(FlatFileCache::getAll());
+        return FlatFileCache::getAllKeys();
     }
 
     /**
